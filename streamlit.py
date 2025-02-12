@@ -21,6 +21,45 @@ keyman_api_url = "https://api.keyman.com/search/2.0"
 with open("kvks_index.json", "r") as f:
     kvks_index = json.load(f)
 
+# Add this near the top of the file with other constants
+GRID_SUPPORTED_LANGUAGES = {
+    "af-ZA": ("af", "Afrikaans"),
+    "ar-SA": ("ar", "Arabic"),
+    "ca-ES": ("ca", "Catalan"),
+    "cs-CZ": ("cs", "Czech"),
+    "cy-GB": ("cy", "Welsh"),
+    "da-DK": ("da", "Danish"),
+    "de-AT": ("de", "German (Austria)"),
+    "de-DE": ("de", "German"),
+    "el-GR": ("el", "Greek"),
+    "en-AU": ("en", "English (Australia)"),
+    "en-CA": ("en", "English (Canada)"),
+    "en-GB": ("en", "English (UK)"),
+    "en-NZ": ("en", "English (New Zealand)"),
+    "en-US": ("en", "English (US)"),
+    "en-ZA": ("en", "English (South Africa)"),
+    "es-ES": ("es", "Spanish"),
+    "es-US": ("es", "Spanish (US)"),
+    "eu-ES": ("eu", "Basque"),
+    "fi-FI": ("fi", "Finnish"),
+    "fo-FO": ("fo", "Faroese"),
+    "fr-CA": ("fr", "French (Canada)"),
+    "fr-FR": ("fr", "French"),
+    "he-IL": ("he", "Hebrew"),
+    "hr-HR": ("hr", "Croatian"),
+    "it-IT": ("it", "Italian"),
+    "nb-NO": ("nb", "Norwegian"),
+    "nl-BE": ("nl", "Dutch (Belgium)"),
+    "nl-NL": ("nl", "Dutch"),
+    "pl-PL": ("pl", "Polish"),
+    "pt-BR": ("pt", "Portuguese (Brazil)"),
+    "pt-PT": ("pt", "Portuguese"),
+    "ru-RU": ("ru", "Russian"),
+    "sk-SK": ("sk", "Slovak"),
+    "sl-SI": ("sl", "Slovenian"),
+    "sv-SE": ("sv", "Swedish"),
+    "uk-UA": ("uk", "Ukrainian")
+}
 
 # Function to unzip the template.gridset file into a temporary directory
 def unzip_template_gridset():
@@ -150,35 +189,20 @@ def modify_gridset_with_kvks_layers(kvks_mappings, gridset_base_dir):
 
 
 # After the other function definitions but before the main app logic
-def add_language_to_gridset_settings(settings_xml_content: str, language_code: str, encodings_data: list) -> str:
+def add_language_to_gridset_settings(settings_xml_content: str, language_code: str, _) -> str:
     """
     Add or update language setting in GridSet settings.xml file
     
     Args:
         settings_xml_content: The XML content from settings.xml
-        language_code: The language code to add (e.g. 'ar-SA', 'en')
-        encodings_data: List of language encoding dictionaries from encodings.json
+        language_code: The language code to add (must be a valid Grid language code)
+        _: Unused parameter kept for compatibility
     
     Returns:
         Updated XML content as string
     """
-    # First validate the language code exists
-    valid_codes = set()
-    for lang in encodings_data:
-        if lang['Name']:  # Only add non-empty names
-            valid_codes.add(lang['Name'])
-            # Also add two-letter code for partial matching
-            if 'TwoLetterISOLanguageName' in lang:
-                valid_codes.add(lang['TwoLetterISOLanguageName'])
-
-    # Try exact match first
-    if language_code not in valid_codes:
-        # Try partial match with two-letter code
-        two_letter_code = language_code.split('-')[0] if '-' in language_code else language_code
-        if two_letter_code not in valid_codes:
-            raise ValueError(f"Invalid language code: {language_code}")
-        # Use two-letter code if no exact match
-        language_code = two_letter_code
+    if language_code not in GRID_SUPPORTED_LANGUAGES:
+        raise ValueError(f"Invalid Grid language code: {language_code}")
 
     # Check if Language tag already exists
     if "<Language>" in settings_xml_content:
@@ -235,12 +259,8 @@ if st.session_state.keyboards:
     st.session_state.selected_keyboard = selected_keyboard
 
 if st.session_state.selected_keyboard:
-    # Extract language options from encodings.json
-    with open("encodings.json", "r") as f:
-        encodings_data = json.load(f)["CC"]
-        
-    # Create list of language options in format "Name (DisplayName)" 
-    language_options = [f"{lang['Name']} ({lang['DisplayName']})" for lang in encodings_data if lang['Name']]
+    # Create list of language options
+    language_options = [f"{code} ({name})" for code, (_, name) in GRID_SUPPORTED_LANGUAGES.items()]
     language_options.insert(0, "No language setting")
     
     # Try to find matching language for auto-selection
@@ -253,47 +273,39 @@ if st.session_state.selected_keyboard:
     # Extract language code from keyboard data
     keyboard_lang = None
     if 'languageId' in keyboard:
-        # Some keyboards use languageId
         keyboard_lang = keyboard['languageId'].split('-')[0].lower()
     elif 'language' in keyboard:
-        # Some keyboards use language
         keyboard_lang = keyboard['language'].split('-')[0].lower()
     
     if keyboard_lang:
         if debugging:
             st.write(f"Found keyboard language: {keyboard_lang}")
+        
+        # Try to find best matching language
+        for i, option in enumerate(language_options[1:], 1):  # Skip "No language setting"
+            grid_code = option.split(" (")[0]
+            grid_lang = GRID_SUPPORTED_LANGUAGES[grid_code][0]
             
-        # Try to find matching language in encodings
-        for i, option in enumerate(language_options):
-            if option == "No language setting":
-                continue
-                
-            # Extract language code from option (e.g., "ar-SA (Arabic (Saudi Arabia))" -> "ar-SA")
-            option_lang_code = option.split(" (")[0]
-            
-            # Try matching with full code first
-            if option_lang_code.lower() == keyboard_lang:
+            # Exact match
+            if grid_lang.lower() == keyboard_lang:
                 default_index = i
-                break
-                
-            # Then try matching with base code
-            option_lang_base = option_lang_code.split('-')[0].lower()
-            if option_lang_base == keyboard_lang:
-                default_index = i
-                break
-            
-            # Also try matching with TwoLetterISOLanguageName
-            for lang in encodings_data:
-                if (lang.get('TwoLetterISOLanguageName', '').lower() == keyboard_lang and 
-                    f"{lang['Name']} ({lang['DisplayName']})" == option):
-                    default_index = i
+                # Prefer exact region match if available
+                if f"{keyboard_lang}-{keyboard.get('region', '').lower()}" == grid_code.lower():
                     break
+            
+            # Special cases for similar scripts
+            elif keyboard_lang in ('ar', 'fa', 'ur') and grid_lang == 'ar':  # RTL scripts
+                default_index = i
+                break
+            elif keyboard_lang in ('zh', 'ja', 'ko') and grid_lang == 'en':  # CJK -> default to English
+                default_index = language_options.index("en-US (English (US))")
+                break
     
     if debugging and default_index > 0:
         st.write(f"Auto-selected language: {language_options[default_index]}")
     
     selected_language_display = st.selectbox(
-        "Add language setting to gridset - note this should match any lanuage pack you have installed on Windows (optional):", 
+        "Add language setting to gridset - note this should match any language pack you have installed on Windows (optional):", 
         language_options,
         index=default_index,
         help="Language setting is auto-selected based on keyboard language when possible"
@@ -328,7 +340,7 @@ if st.session_state.selected_keyboard:
                             updated_settings = add_language_to_gridset_settings(
                                 settings_content, 
                                 selected_language_code,
-                                encodings_data
+                                None
                             )
                             
                             # Write back updated settings
