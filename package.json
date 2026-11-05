@@ -1,0 +1,15 @@
+{
+  "name": "keyboardmaker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:browser": "node scripts/build-browser-bundle.mjs",
+    "generate": "node scripts/generate-gridset.mjs"
+  },
+  "dependencies": {
+    "@willwade/aac-processors": "^0.4.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

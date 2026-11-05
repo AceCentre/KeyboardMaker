@@ -1,0 +1,102 @@
+{
+  "layout": "Gujarati iOS Extended Grid",
+  "locale": "gu-IN",
+  "description": "Extended Gujarati keyboard modelled on the iOS Gujarati extended layout",
+  "workspace": true,
+  "rows": [
+    {
+      "row_index": 1,
+      "keys": [
+        { "position": 1, "type": "action", "label": "Tab / Arrow", "value": "⇥" },
+        { "position": 2, "type": "character", "label": "ક", "value": "ક" },
+        { "position": 3, "type": "character", "label": "ખ", "value": "ખ" },
+        { "position": 4, "type": "character", "label": "ગ", "value": "ગ" },
+        { "position": 5, "type": "character", "label": "ઘ", "value": "ઘ" },
+        { "position": 6, "type": "character", "label": "S̱", "value": "S̱" },
+        { "position": 7, "type": "character", "label": "અ", "value": "અ" },
+        { "position": 8, "type": "character", "label": "આ", "value": "આ" },
+        { "position": 9, "type": "character", "label": "ઇ", "value": "ઇ" },
+        { "position": 10, "type": "character", "label": "ઈ", "value": "ઈ" },
+        { "position": 11, "type": "character", "label": "ઉ", "value": "ઉ" },
+        { "position": 12, "type": "action", "label": "Delete", "value": "⌫" }
+      ]
+    },
+    {
+      "row_index": 2,
+      "keys": [
+        { "position": 1, "type": "character", "label": "◌ૅ", "value": "ૅ" },
+        { "position": 2, "type": "character", "label": "ચ", "value": "ચ" },
+        { "position": 3, "type": "character", "label": "છ", "value": "છ" },
+        { "position": 4, "type": "character", "label": "જ", "value": "જ" },
+        { "position": 5, "type": "character", "label": "ઝ", "value": "ઝ" },
+        { "position": 6, "type": "character", "label": "ઞ", "value": "ઞ" },
+        { "position": 7, "type": "character", "label": "ઊ", "value": "ઊ" },
+        { "position": 8, "type": "character", "label": "એ", "value": "એ" },
+        { "position": 9, "type": "character", "label": "ઐ", "value": "ઐ" },
+        { "position": 10, "type": "character", "label": "ઓ", "value": "ઓ" },
+        { "position": 11, "type": "character", "label": "ઔ", "value": "ઔ" }
+      ]
+    },
+    {
+      "row_index": 3,
+      "keys": [
+        { "position": 1, "type": "character", "label": ".", "value": "." },
+        { "position": 2, "type": "character", "label": "ટ", "value": "ટ" },
+        { "position": 3, "type": "character", "label": "ઠ", "value": "ઠ" },
+        { "position": 4, "type": "character", "label": "ડ", "value": "ડ" },
+        { "position": 5, "type": "character", "label": "ઢ", "value": "ઢ" },
+        { "position": 6, "type": "character", "label": "ણ", "value": "ણ" },
+        { "position": 7, "type": "character", "label": "અમ", "value": "અમ" },
+        { "position": 8, "type": "character", "label": "અઃ", "value": "અઃ" },
+        { "position": 9, "type": "character", "label": "ઑ", "value": "ઑ" },
+        { "position": 10, "type": "character", "label": "ઓૅ", "value": "ઓૅ" },
+        { "position": 11, "type": "character", "label": "ઋ", "value": "ઋ" },
+        { "position": 12, "type": "action", "label": "Return", "value": "↵" }
+      ]
+    },
+    {
+      "row_index": 4,
+      "keys": [
+        { "position": 1, "type": "character", "label": "?", "value": "?" },
+        { "position": 2, "type": "character", "label": "ત", "value": "ત" },
+        { "position": 3, "type": "character", "label": "થ", "value": "થ" },
+        { "position": 4, "type": "character", "label": "દ", "value": "દ" },
+        { "position": 5, "type": "character", "label": "ધ", "value": "ધ" },
+        { "position": 6, "type": "character", "label": "ન", "value": "ન" },
+        { "position": 7, "type": "character", "label": "ય", "value": "ય" },
+        { "position": 8, "type": "character", "label": "ર", "value": "ર" },
+        { "position": 9, "type": "character", "label": "લ", "value": "લ" },
+        { "position": 10, "type": "character", "label": "વ", "value": "વ" },
+        { "position": 11, "type": "character", "label": "ળ", "value": "ળ" }
+      ]
+    },
+    {
+      "row_index": 5,
+      "keys": [
+        { "position": 1, "type": "character", "label": "!", "value": "!" },
+        { "position": 2, "type": "character", "label": "પ", "value": "પ" },
+        { "position": 3, "type": "character", "label": "ફ", "value": "ફ" },
+        { "position": 4, "type": "character", "label": "બ", "value": "બ" },
+        { "position": 5, "type": "character", "label": "ભ", "value": "ભ" },
+        { "position": 6, "type": "character", "label": "મ", "value": "મ" },
+        { "position": 7, "type": "character", "label": "શ", "value": "શ" },
+        { "position": 8, "type": "character", "label": "ષ", "value": "ષ" },
+        { "position": 9, "type": "character", "label": "સ", "value": "સ" },
+        { "position": 10, "type": "character", "label": "હ", "value": "હ" },
+        { "position": 11, "type": "character", "label": "ક્ષ", "value": "ક્ષ" },
+        { "position": 12, "type": "character", "label": "જ્ઞ", "value": "જ્ઞ" }
+      ]
+    },
+    {
+      "row_index": 6,
+      "keys": [
+        { "position": 1, "type": "action", "label": "Symbols", "value": "!1?123" },
+        { "position": 2, "type": "action", "label": "Globe", "value": "🌐" },
+        { "position": 3, "type": "action", "label": "Dictation", "value": "🎤" },
+        { "position": 4, "type": "action", "label": "Spacebar", "value": " " },
+        { "position": 5, "type": "action", "label": "Symbols", "value": "!1?123" },
+        { "position": 6, "type": "action", "label": "Hide Keyboard", "value": "⌨️" }
+      ]
+    }
+  ]
+}
