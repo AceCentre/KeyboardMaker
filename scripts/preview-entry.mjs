@@ -43,6 +43,8 @@ export async function previewGridset(container, bytes, filename = 'keyboard.grid
     React.createElement(BoardViewer, {
       tree,
       showMessageBar: true,
+      showBoardInfo: false, // hide page name / "N×M grid" info text
+      derivePageBackground: true, // Grid 3 surround colour behind the keys
     })
   );
 
