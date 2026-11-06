@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keyboard Maker — AAC keyboards for any language</title>
+  <meta name="description" content="Create Grid 3 keyboard gridsets for AAC systems in any language — from Keyman keyboards or simple row/key JSON layouts. Runs entirely in your browser." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Dynamic Keyboard Layout Maker for AAC</h1>
+    <p>
+      Create Grid 3 keyboard gridsets: search a language to find
+      <a href="http://keyman.com" target="_blank" rel="noopener">Keyman</a> keyboards and built-in
+      JSON layouts (like the Gujarati keyboard). Hover any entry for a live preview, click to
+      select it, then generate and download your gridset.
+      Everything runs in your browser — nothing is uploaded.
+    </p>
+  </header>
+
+  <main>
+    <section class="search-bar">
+      <input type="search" id="search-input" placeholder="Search for a language (e.g. Gujarati, French)…" aria-label="Search for a language" />
+      <button id="search-button">Search keyboards</button>
+    </section>
+    <p id="search-status" class="status" role="status"></p>
+
+    <section id="results" class="results hidden">
+      <div class="list-pane" id="results-list" aria-label="Search results"></div>
+      <div class="preview-pane" id="hover-preview">
+        <div class="placeholder">Hover an entry to preview it here.<br />Click to select it.</div>
+      </div>
+    </section>
+
+    <section id="details" class="details hidden"></section>
+
+    <details class="own-layout">
+      <summary>Add your own JSON layout</summary>
+      <p>
+        Describe a keyboard as a simple row/key JSON layout —
+        see the <a href="https://github.com/AceCentre/KeyboardMaker/blob/main/layouts/README.md" target="_blank" rel="noopener">format guide</a>.
+        Use it right away or save it to this browser's library (it then appears in searches).
+      </p>
+      <input type="file" id="layout-file" accept=".json,application/json" aria-label="Upload a layout JSON file" />
+      <div id="own-layout-actions" class="hidden">
+        <div class="own-layout-name" id="own-layout-name"></div>
+        <button id="own-layout-use">Use this layout now</button>
+        <button id="own-layout-save">Save to this browser's library</button>
+        <span id="own-layout-feedback" class="status"></span>
+      </div>
+    </details>
+  </main>
+
+  <footer>
+    <p>
+      Keyboards from <a href="http://keyman.com" target="_blank" rel="noopener">Keyman</a> ·
+      gridsets by <a href="https://www.npmjs.com/package/@willwade/aac-processors" target="_blank" rel="noopener">@willwade/aac-processors</a> ·
+      previews by <a href="https://github.com/willwade/aac-board-viewer" target="_blank" rel="noopener">aac-board-viewer</a> ·
+      <a href="https://github.com/AceCentre/KeyboardMaker" target="_blank" rel="noopener">source on GitHub</a>
+    </p>
+  </footer>
+
+  <div id="modal-backdrop" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Keyboard preview">
+      <div class="modal-head">
+        <h2 id="modal-title">Keyboard preview</h2>
+        <button id="modal-close" aria-label="Close preview">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="assets/layout-generator.js"></script>
+  <script src="assets/board-preview.js"></script>
+  <script src="assets/keyman-remap.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
