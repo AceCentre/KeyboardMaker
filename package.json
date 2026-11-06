@@ -7,7 +7,7 @@
     "generate": "node scripts/generate-gridset.mjs"
   },
   "dependencies": {
-    "@willwade/aac-processors": "^0.4.1"
+    "@willwade/aac-processors": "^0.4.2"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"

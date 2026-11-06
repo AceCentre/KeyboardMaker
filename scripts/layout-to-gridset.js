@@ -150,11 +150,10 @@ export function buildPage(pageDef, layout, allPageNames, { includeWorkspace = tr
       message: '',
       contentType: 'Workspace',
       contentSubType: 'Chat',
-      // Explicit font colour: without this the gridset writer derives an
-      // inline FontColour from an empty style and ends up forcing white text
-      // onto the workspace (aac-processors 0.4.1 bug), making the chat bar
-      // look empty in Grid 3.
-      style: { fontColor: '#000000FF' },
+      // No explicit style: since @willwade/aac-processors 0.4.2 the writer
+      // leaves plugin cells' text colour to the referenced Workspace style
+      // (AACProcessors-nodejs#57), which is exactly what Grid 3's own editor
+      // emits.
     });
     buttons.push(workspace);
     grid.push(Array.from({ length: numColumns }, () => workspace));
