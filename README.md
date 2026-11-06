@@ -8,10 +8,13 @@ A streamlit app to make keyboards for AAC systems for any language
 2. **Layout library (JSON)** — describe a keyboard as a simple row/key JSON
    layout (see [`layouts/README.md`](layouts/README.md); the Gujarati iOS
    Extended keyboard ships in [`layouts/`](layouts/)) and generate a Grid 3
-   gridset either **entirely in the browser** or on the server.
+   gridset **entirely in the browser** (with an interactive preview) or on
+   the server.
 
 Gridsets are generated with
-[@willwade/aac-processors](https://www.npmjs.com/package/@willwade/aac-processors).
+[@willwade/aac-processors](https://www.npmjs.com/package/@willwade/aac-processors);
+the in-app preview is rendered with
+[aac-board-viewer](https://github.com/willwade/aac-board-viewer).
 
 ## Setup
 
@@ -19,9 +22,9 @@ Gridsets are generated with
 # Python side
 uv sync (or pip install -r requirements.txt)
 
-# Node side (for the layout library: generator + browser bundle)
+# Node side (for the layout library: generator + preview bundles)
 npm install
-npm run build:browser   # builds static/layout-generator.js
+npm run build:browser   # builds static/layout-generator.js and static/board-preview.js
 ```
 
 ## Run

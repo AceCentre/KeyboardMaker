@@ -285,14 +285,22 @@ def run_node_generator(layout_data, include_workspace):
 
 
 @st.cache_data(show_spinner=False)
-def build_layout_component_html(bundle_path, bundle_mtime, payload_json):
+def build_layout_component_html(gen_mtime, prev_mtime, payload_json):
     """Build the self-contained in-browser generator component.
 
-    The bundle (static/layout-generator.js) plus the selected layout JSON are
-    inlined so the component can generate the gridset entirely client-side.
+    The generator bundle (static/layout-generator.js) plus the selected
+    layout JSON are inlined so the component can generate the gridset
+    entirely client-side. When the preview bundle (static/board-preview.js,
+    aac-board-viewer) exists, it is inlined too and the generated gridset
+    is rendered as an interactive board preview.
     """
-    with open(bundle_path, "r", encoding="utf-8") as f:
+    with open(BROWSER_BUNDLE, "r", encoding="utf-8") as f:
         bundle = f.read()
+    preview_bundle = ""
+    preview_path = os.path.join(APP_DIR, "static", "board-preview.js")
+    if os.path.exists(preview_path):
+        with open(preview_path, "r", encoding="utf-8") as f:
+            preview_bundle = f.read()
     safe_payload = payload_json.replace("</", "<\\/")
 
     html = f"""<!DOCTYPE html>
@@ -309,6 +317,11 @@ def build_layout_component_html(bundle_path, bundle_mtime, payload_json):
   button#generate:disabled {{ opacity: 0.5; cursor: wait; }}
   #status {{ margin-top: 0.5rem; font-size: 0.9rem; }}
   #status.error {{ color: #d93025; }}
+  #preview {{
+    margin-top: 0.75rem; border: 1px solid #e0e0e0; border-radius: 6px;
+    min-height: 120px; overflow: auto; background: #fafafa;
+  }}
+  #preview .preview-note {{ color: #888; font-size: 0.85rem; padding: 0.75rem; }}
   a#download {{
     display: none; margin-top: 0.5rem; background-color: #21c354; color: white;
     text-decoration: none; border-radius: 6px; padding: 0.45rem 1rem;
@@ -322,9 +335,11 @@ def build_layout_component_html(bundle_path, bundle_mtime, payload_json):
   <button id="generate">Generate gridset in your browser</button>
   <div id="status"></div>
   <a id="download" href="#" download>Download gridset</a>
+  <div id="preview"><div class="preview-note">Preview appears here after generating…</div></div>
   <ul id="warnings"></ul>
 </div>
 <script>{bundle}</script>
+{f'<script>{preview_bundle}</script>' if preview_bundle else ''}
 <script>
 (function () {{
   var payload = {safe_payload};
@@ -361,6 +376,16 @@ def build_layout_component_html(bundle_path, bundle_mtime, payload_json):
                                    : 'Verification FAILED: ' + v.errors + ' error(s)') +
                           (v.warnings ? ' (' + v.warnings + ' warning(s))' : '');
         status.appendChild(vEl);
+      }}
+      var previewEl = document.getElementById('preview');
+      if (window.BoardPreviewBundle && previewEl) {{
+        previewEl.innerHTML = '<div class="preview-note">Rendering preview…</div>';
+        try {{
+          var pinfo = await window.BoardPreviewBundle.previewGridset(previewEl, result.bytes, result.filename);
+        }} catch (perr) {{
+          previewEl.innerHTML = '<div class="preview-note">Preview unavailable: ' +
+            (perr && perr.message ? perr.message : perr) + '</div>';
+        }}
       }}
       (result.summary.warnings || []).forEach(function (w) {{
         var li = document.createElement('li');
@@ -634,13 +659,18 @@ with tab_layout:
                     "layout": layout_data,
                     "workspace": include_workspace,
                 }
-                bundle_path = os.path.join(APP_DIR, BROWSER_BUNDLE)
+                preview_path = os.path.join(APP_DIR, "static", "board-preview.js")
                 html = build_layout_component_html(
-                    bundle_path,
-                    os.path.getmtime(bundle_path),
+                    os.path.getmtime(os.path.join(APP_DIR, BROWSER_BUNDLE)),
+                    os.path.getmtime(preview_path) if os.path.exists(preview_path) else 0,
                     json.dumps(payload, ensure_ascii=False),
                 )
-                components.html(html, height=320)
+                components.html(html, height=760)
+                if not os.path.exists(preview_path):
+                    st.caption(
+                        "Preview unavailable (static/board-preview.js not built) — "
+                        "run `npm run build:browser` to enable it. Download still works."
+                    )
             else:
                 if st.button("Generate Gridset"):
                     try:

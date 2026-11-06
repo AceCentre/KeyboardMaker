@@ -1,12 +1,18 @@
 /**
  * build-browser-bundle.mjs
  *
- * Bundle the in-browser gridset generator (scripts/browser-entry.mjs) into a
- * single self-contained IIFE file: static/layout-generator.js
- * exposing window.LayoutGenerator.generateGridset(layoutJson, options).
+ * Bundles the in-browser tools into self-contained IIFE files under static/:
  *
- * The '@willwade/aac-processors' import in the shared lib is aliased to the
- * browser entry so no Node-only code (fs, adm-zip, better-sqlite3) is pulled in.
+ *   static/layout-generator.js  -> window.LayoutGeneratorBundle
+ *     Layout JSON -> Grid 3 .gridset bytes, entirely in-memory.
+ *
+ *   static/board-preview.js    -> window.BoardPreviewBundle
+ *     Renders the generated .gridset with aac-board-viewer (React bundled).
+ *     The viewer's CSS is inlined and injected at runtime so the bundle
+ *     stays a single file.
+ *
+ * The '@willwade/aac-processors' import is aliased to the browser entry so no
+ * Node-only code (fs, adm-zip, better-sqlite3) is pulled in.
  */
 
 import { build } from 'esbuild';
@@ -16,32 +22,57 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const browserEntry = require.resolve('@willwade/aac-processors/browser');
+const viewerStyles = require.resolve('aac-board-viewer/styles');
 
-const outdir = path.resolve('static');
-fs.mkdirSync(outdir, { recursive: true });
-const outfile = path.join(outdir, 'layout-generator.js');
+const alias = {
+  '@willwade/aac-processors': browserEntry,
+  '@willwade/aac-processors/browser': browserEntry,
+};
 
-const result = await build({
-  entryPoints: [path.resolve('scripts/browser-entry.mjs')],
+const common = {
   bundle: true,
   format: 'iife',
-  globalName: 'LayoutGeneratorBundle',
   target: ['es2020'],
   minify: true,
-  outfile,
   legalComments: 'none',
   logLevel: 'info',
-  alias: {
-    '@willwade/aac-processors': browserEntry,
-    '@willwade/aac-processors/browser': browserEntry,
-  },
+  alias,
   define: {
     'process.env.NODE_ENV': '"production"',
   },
+};
+
+const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
+
+// --- 1. generator bundle ----------------------------------------------------
+const generatorOut = path.resolve('static/layout-generator.js');
+fs.mkdirSync(path.resolve('static'), { recursive: true });
+await build({
+  ...common,
+  entryPoints: [path.resolve('scripts/browser-entry.mjs')],
+  globalName: 'LayoutGeneratorBundle',
+  outfile: generatorOut,
+});
+console.log(`Built ${generatorOut} (${kb(fs.statSync(generatorOut).size)})`);
+
+// --- 2. preview bundle (aac-board-viewer) -----------------------------------
+// CSS import emits a sibling .css file which we inline into the JS bundle.
+const previewDir = path.resolve('static/.preview-build');
+fs.rmSync(previewDir, { recursive: true, force: true });
+fs.mkdirSync(previewDir, { recursive: true });
+const previewOut = path.join(previewDir, 'board-preview.js');
+await build({
+  ...common,
+  entryPoints: [path.resolve('scripts/preview-entry.mjs')],
+  globalName: 'BoardPreviewBundle',
+  outfile: previewOut,
 });
 
-const kb = (fs.statSync(outfile).size / 1024).toFixed(1);
-console.log(`Built ${outfile} (${kb} KB)`);
-if (result.warnings.length > 0) {
-  console.warn(`${result.warnings.length} esbuild warnings`);
-}
+const cssPath = previewOut.replace(/\.js$/, '.css');
+const css = fs.existsSync(cssPath) ? fs.readFileSync(cssPath, 'utf-8') : fs.readFileSync(viewerStyles, 'utf-8');
+const js = fs.readFileSync(previewOut, 'utf-8');
+const injectCss = `(function(){if(typeof document==='undefined')return;var s=document.createElement('style');s.textContent=${JSON.stringify(css)};document.head.appendChild(s);})();`;
+const previewFinal = path.resolve('static/board-preview.js');
+fs.writeFileSync(previewFinal, injectCss + js);
+fs.rmSync(previewDir, { recursive: true, force: true });
+console.log(`Built ${previewFinal} (${kb(fs.statSync(previewFinal).size)})`);
