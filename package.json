@@ -3,14 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:browser": "node scripts/build-browser-bundle.mjs",
+    "build": "node scripts/build-browser-bundle.mjs",
+    "build:site": "node scripts/build-browser-bundle.mjs",
     "generate": "node scripts/generate-gridset.mjs"
   },
   "dependencies": {
-    "@willwade/aac-processors": "^0.4.2",
-    "aac-board-viewer": "^0.4.3",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "@willwade/aac-processors": "^0.4.2"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"

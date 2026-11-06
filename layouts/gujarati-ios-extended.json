@@ -1,6 +1,7 @@
 {
   "layout": "Gujarati iOS Extended Grid",
   "locale": "gu-IN",
+  "languages": ["Gujarati", "ગુજરાતી"],
   "description": "Extended Gujarati keyboard modelled on the iOS Gujarati extended layout",
   "workspace": true,
   "rows": [

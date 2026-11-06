@@ -76,3 +76,37 @@ const previewFinal = path.resolve('static/board-preview.js');
 fs.writeFileSync(previewFinal, injectCss + js);
 fs.rmSync(previewDir, { recursive: true, force: true });
 console.log(`Built ${previewFinal} (${kb(fs.statSync(previewFinal).size)})`);
+
+// --- 2b. keyman remap bundle (side-effect script, no globalName —
+// esbuild returns undefined for re-export-only entries and would clobber
+// the globalThis assignment) ---------------------------------------------
+const remapOut = path.resolve('static/keyman-remap.js');
+await build({
+  ...common,
+  entryPoints: [path.resolve('scripts/keyman-remap-entry.mjs')],
+  outfile: remapOut,
+});
+console.log(`Built ${remapOut} (${kb(fs.statSync(remapOut).size)})`);
+
+// --- 3. assemble the static site (docs/) -------------------------------------
+// Bundles + data assets are copied into docs/ so GitHub Pages can serve the
+// whole app with no server-side code. Layouts get a manifest (index.json).
+const docsDir = path.resolve('docs');
+fs.mkdirSync(path.join(docsDir, 'assets'), { recursive: true });
+for (const file of ['layout-generator.js', 'board-preview.js', 'keyman-remap.js']) {
+  fs.copyFileSync(path.resolve('static', file), path.join(docsDir, 'assets', file));
+  console.log(`Copied ${file} -> docs/assets/`);
+}
+fs.copyFileSync(path.resolve('kvks_index.json'), path.join(docsDir, 'kvks_index.json'));
+fs.copyFileSync(path.resolve('template.gridset'), path.join(docsDir, 'template.gridset'));
+
+const layoutsSrc = path.resolve('layouts');
+const layoutsDest = path.join(docsDir, 'layouts');
+fs.mkdirSync(layoutsDest, { recursive: true });
+const manifest = [];
+for (const file of fs.readdirSync(layoutsSrc).filter((f) => f.endsWith('.json'))) {
+  fs.copyFileSync(path.join(layoutsSrc, file), path.join(layoutsDest, file));
+  manifest.push(file);
+}
+fs.writeFileSync(path.join(layoutsDest, 'index.json'), JSON.stringify(manifest, null, 2));
+console.log(`Assembled docs/ (${manifest.length} layout(s) in manifest)`);
