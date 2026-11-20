@@ -14,11 +14,11 @@
         { "position": 4, "type": "character", "label": "ગ", "value": "ગ" },
         { "position": 5, "type": "character", "label": "ઘ", "value": "ઘ" },
         { "position": 6, "type": "character", "label": "S̱", "value": "S̱" },
-        { "position": 7, "type": "character", "label": "અ", "value": "અ" },
-        { "position": 8, "type": "character", "label": "આ", "value": "આ" },
-        { "position": 9, "type": "character", "label": "ઇ", "value": "ઇ" },
-        { "position": 10, "type": "character", "label": "ઈ", "value": "ઈ" },
-        { "position": 11, "type": "character", "label": "ઉ", "value": "ઉ" },
+        { "position": 7, "type": "character", "label": "અ", "value": "અ", "states": { "shift": { "label": "◌ા", "value": "ા" } } },
+        { "position": 8, "type": "character", "label": "આ", "value": "આ", "states": { "shift": { "label": "◌િ", "value": "િ" } } },
+        { "position": 9, "type": "character", "label": "ઇ", "value": "ઇ", "states": { "shift": { "label": "◌ી", "value": "ી" } } },
+        { "position": 10, "type": "character", "label": "ઈ", "value": "ઈ", "states": { "shift": { "label": "◌ુ", "value": "ુ" } } },
+        { "position": 11, "type": "character", "label": "ઉ", "value": "ઉ", "states": { "shift": { "label": "◌ૂ", "value": "ૂ" } } },
         { "position": 12, "type": "action", "label": "Delete", "value": "⌫" }
       ]
     },
@@ -31,11 +31,11 @@
         { "position": 4, "type": "character", "label": "જ", "value": "જ" },
         { "position": 5, "type": "character", "label": "ઝ", "value": "ઝ" },
         { "position": 6, "type": "character", "label": "ઞ", "value": "ઞ" },
-        { "position": 7, "type": "character", "label": "ઊ", "value": "ઊ" },
-        { "position": 8, "type": "character", "label": "એ", "value": "એ" },
-        { "position": 9, "type": "character", "label": "ઐ", "value": "ઐ" },
-        { "position": 10, "type": "character", "label": "ઓ", "value": "ઓ" },
-        { "position": 11, "type": "character", "label": "ઔ", "value": "ઔ" }
+        { "position": 7, "type": "character", "label": "ઊ", "value": "ઊ", "states": { "shift": { "label": "◌ે", "value": "ે" } } },
+        { "position": 8, "type": "character", "label": "એ", "value": "એ", "states": { "shift": { "label": "◌ૈ", "value": "ૈ" } } },
+        { "position": 9, "type": "character", "label": "ઐ", "value": "ઐ", "states": { "shift": { "label": "◌ો", "value": "ો" } } },
+        { "position": 10, "type": "character", "label": "ઓ", "value": "ઓ", "states": { "shift": { "label": "◌ૌ", "value": "ૌ" } } },
+        { "position": 11, "type": "character", "label": "ઔ", "value": "ઔ", "states": { "shift": { "label": "◌્", "value": "્" } } }
       ]
     },
     {
@@ -47,11 +47,11 @@
         { "position": 4, "type": "character", "label": "ડ", "value": "ડ" },
         { "position": 5, "type": "character", "label": "ઢ", "value": "ઢ" },
         { "position": 6, "type": "character", "label": "ણ", "value": "ણ" },
-        { "position": 7, "type": "character", "label": "અમ", "value": "અમ" },
-        { "position": 8, "type": "character", "label": "અઃ", "value": "અઃ" },
-        { "position": 9, "type": "character", "label": "ઑ", "value": "ઑ" },
-        { "position": 10, "type": "character", "label": "ઓૅ", "value": "ઓૅ" },
-        { "position": 11, "type": "character", "label": "ઋ", "value": "ઋ" },
+        { "position": 7, "type": "character", "label": "અમ", "value": "અમ", "states": { "shift": { "label": "◌ં", "value": "ં" } } },
+        { "position": 8, "type": "character", "label": "અઃ", "value": "અઃ", "states": { "shift": { "label": "◌ઃ", "value": "ઃ" } } },
+        { "position": 9, "type": "character", "label": "ઑ", "value": "ઑ", "states": { "shift": { "label": "◌ૉ", "value": "ૉ" } } },
+        { "position": 10, "type": "character", "label": "ઓૅ", "value": "ઓૅ", "states": { "shift": { "label": "◌ૄ", "value": "ૄ" } } },
+        { "position": 11, "type": "character", "label": "ઋ", "value": "ઋ", "states": { "shift": { "label": "◌ઁ", "value": "ઁ" } } },
         { "position": 12, "type": "action", "label": "Return", "value": "↵" }
       ]
     },
@@ -96,7 +96,8 @@
         { "position": 3, "type": "action", "label": "Dictation", "value": "🎤" },
         { "position": 4, "type": "action", "label": "Spacebar", "value": " " },
         { "position": 5, "type": "action", "label": "Symbols", "value": "!1?123" },
-        { "position": 6, "type": "action", "label": "Hide Keyboard", "value": "⌨️" }
+        { "position": 6, "type": "action", "label": "Hide Keyboard", "value": "⌨️" },
+        { "position": 7, "type": "action", "label": "Shift", "value": "⇧" }
       ]
     }
   ]
