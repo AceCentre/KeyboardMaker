@@ -46,6 +46,48 @@ function grid3Command(commandId, parameters = {}) {
   };
 }
 
+/**
+ * Modifier layers: a key may define per-state variants and the layout gains
+ * one generated page per state. State names are modifier names joined by
+ * "_", in canonical order: shift, ctrl, alt, opt (e.g. "shift", "shift_opt").
+ */
+const MODIFIER_ORDER = ['shift', 'ctrl', 'alt', 'opt'];
+
+export function canonicalStateName(name) {
+  const parts = String(name)
+    .toLowerCase()
+    .split(/[_+\s]+/)
+    .map((p) => p.trim())
+    .filter((p) => MODIFIER_ORDER.includes(p));
+  const ordered = MODIFIER_ORDER.filter((m) => parts.includes(m));
+  return ordered.join('_');
+}
+
+/** Normalised modifier name for a key, or null when the key is not a
+ *  modifier toggle (⇧ shift, ⌃ ctrl, ⌥ alt/option). */
+export function detectModifier(label, value) {
+  const l = String(label ?? '');
+  const v = String(value ?? '');
+  if (v === '⇧' || /\bshift\b/i.test(l)) return 'shift';
+  if (v === '⌃' || /\bctrl\b/i.test(l) || /\bcontrol\b/i.test(l)) return 'ctrl';
+  if (v === '⌥' && /\balt\b/i.test(l)) return 'alt';
+  if (v === '⌥' || /\balt\b/i.test(l) || /\bopt(ion)?\b/i.test(l)) return 'opt';
+  return null;
+}
+
+/**
+ * XOR-toggle target state for a modifier on the current state:
+ * default + shift -> "shift"; shift + shift -> ""; opt + shift -> "shift_opt";
+ * shift_opt + shift -> "opt". Returns "" for the default (unmodified) layer.
+ */
+export function toggleState(current, modifier) {
+  const existing = current ? current.split('_') : [];
+  if (existing.includes(modifier)) {
+    return existing.filter((p) => p !== modifier).join('_');
+  }
+  return canonicalStateName([...existing, modifier].join('_'));
+}
+
 function commandForCharacter(key) {
   const value = String(key.value ?? '');
   const codePoints = Array.from(value);
@@ -64,13 +106,37 @@ function commandForCharacter(key) {
 
 /**
  * Decide the Grid 3 command for a key.
+ * `layerCtx` (optional) enables modifier toggles: { states: Set<string>,
+ * current: string|null, defaultPage: string }. When present, shift/ctrl/
+ * alt/opt action keys become Jump.To toggles between the generated layers.
  * Returns { semanticAction } and/or { warning }; empty result means caption-only.
  */
-export function commandForKey(key, pageNames) {
+export function commandForKey(key, pageNames, layerCtx = null) {
   if (key.type !== 'action') return commandForCharacter(key);
 
   const label = normalizeKeyText(key.label);
+  const rawLabel = String(key.label ?? '');
   const value = String(key.value ?? '');
+
+  // Modifier toggles (shift/ctrl/alt/opt) between state layers
+  if (layerCtx) {
+    const modifier = detectModifier(rawLabel, value);
+    if (modifier) {
+      if (!layerCtx.states.has(modifier)) {
+        return {
+          warning: `"${key.label}" kept as a caption only: no key defines a "${modifier}" state, so there is no ${modifier} layer to jump to.`,
+        };
+      }
+      const target = toggleState(layerCtx.current, modifier);
+      const targetPage = target === '' ? layerCtx.defaultPage : target;
+      if (target !== '' && !layerCtx.states.has(target)) {
+        return {
+          warning: `"${key.label}" on layer "${layerCtx.current || 'default'}" kept as a caption only: no key defines a "${target}" state layer to jump to.`,
+        };
+      }
+      return { semanticAction: grid3Command('Jump.To', { grid: targetPage }) };
+    }
+  }
 
   // Delete / backspace
   if (value === '⌫' || label.includes('delete') || label.includes('backspace')) {
@@ -125,12 +191,30 @@ export function commandForKey(key, pageNames) {
 }
 
 /**
- * Build a single AACPage from a page definition ({ name?, rows? }).
+ * Resolve the key definition for a state layer: a key with a matching
+ * state variant uses the variant's label/value, otherwise it inherits its
+ * base definition.
  */
-export function buildPage(pageDef, layout, allPageNames, { includeWorkspace = true } = {}) {
+function resolveKeyForLayer(key, stateName) {
+  if (!stateName || !key.states) return key;
+  const variant = key.states[stateName];
+  if (!variant) return key;
+  return {
+    ...key,
+    label: variant.label ?? key.label,
+    value: variant.value ?? key.value,
+    states: undefined,
+  };
+}
+
+/**
+ * Build a single AACPage from a page definition ({ name?, rows?, layerState? }).
+ */
+export function buildPage(pageDef, layout, allPageNames, { includeWorkspace = true, layerCtx = null } = {}) {
   const pageName = sanitizeName(pageDef.name || pageDef.layout || layout.layout || 'Keyboard');
   const rows = pageDef.rows || [];
   const warnings = [];
+  const stateName = pageDef.layerState || null;
 
   if (rows.length === 0) {
     throw new Error(`Page "${pageName}" has no rows.`);
@@ -173,14 +257,15 @@ export function buildPage(pageDef, layout, allPageNames, { includeWorkspace = tr
         if (gridRow[x]) {
           warnings.push(`Duplicate key at row ${rowIndex} position ${key.position}; "${key.label}" overwrites "${gridRow[x].label}".`);
         }
-        const result = commandForKey(key, allPageNames);
+        const resolved = resolveKeyForLayer(key, stateName);
+        const result = commandForKey(resolved, allPageNames, layerCtx);
         if (result.warning) warnings.push(result.warning);
         const button = new AACButton({
           id: `r${rowIndex}-k${key.position}`,
-          label: String(key.label ?? key.value ?? ''),
-          message: String(key.value ?? ''),
+          label: String(resolved.label ?? resolved.value ?? ''),
+          message: String(resolved.value ?? ''),
           contentType: 'Normal',
-          style: { ...KEY_STYLES[key.type] },
+          style: { ...KEY_STYLES[resolved.type] },
           ...(result.semanticAction ? { semanticAction: result.semanticAction } : {}),
         });
         buttons.push(button);
@@ -204,13 +289,55 @@ export function buildPage(pageDef, layout, allPageNames, { includeWorkspace = tr
 }
 
 /**
+ * Collect the canonical state names used by any key's `states` map.
+ */
+function collectStateNames(pageDefs) {
+  const names = new Set();
+  for (const pageDef of pageDefs) {
+    for (const row of pageDef.rows || []) {
+      for (const key of row.keys || []) {
+        for (const stateName of Object.keys(key.states || {})) {
+          const canonical = canonicalStateName(stateName);
+          if (canonical) names.add(canonical);
+        }
+      }
+    }
+  }
+  return names;
+}
+
+/**
  * Build a complete AACTree from a layout JSON object.
+ *
+ * When any key defines `states`, the layout is expanded into one page per
+ * state layer (identical geometry, per-key variants resolved) and
+ * shift/ctrl/alt/opt action keys become Jump.To toggles between the layers.
  */
 export function buildTree(layout, { includeWorkspace = true, fallbackName = 'Keyboard' } = {}) {
   const warnings = [];
-  const pageDefs = Array.isArray(layout.pages) && layout.pages.length > 0
+  let pageDefs = Array.isArray(layout.pages) && layout.pages.length > 0
     ? layout.pages
     : [{ name: layout.layout, rows: layout.rows }];
+
+  let layerCtx = null;
+  const stateNames = collectStateNames(pageDefs);
+  if (stateNames.size > 0) {
+    if (Array.isArray(layout.pages) && layout.pages.length > 0) {
+      throw new Error('Explicit "pages" and per-key "states" cannot be combined: states expand into generated layer pages.');
+    }
+    const defaultPageName = sanitizeName(layout.layout || fallbackName);
+    for (const stateName of stateNames) {
+      if (stateName === defaultPageName.toLowerCase()) {
+        throw new Error(`State layer "${stateName}" collides with the layout name "${defaultPageName}".`);
+      }
+    }
+    pageDefs = [
+      { name: defaultPageName, rows: layout.rows },
+      ...[...stateNames].map((stateName) => ({ name: stateName, layerState: stateName, rows: layout.rows })),
+    ];
+    layerCtx = { states: stateNames, current: null, defaultPage: defaultPageName };
+  }
+
   const allPageNames = pageDefs.map((p) => sanitizeName(p.name || p.layout || layout.layout || fallbackName));
 
   const tree = new AACTree();
@@ -223,7 +350,10 @@ export function buildTree(layout, { includeWorkspace = true, fallbackName = 'Key
 
   let rootId = null;
   pageDefs.forEach((pageDef, i) => {
-    const { page, warnings: pageWarnings } = buildPage(pageDef, layout, allPageNames, { includeWorkspace });
+    const pageLayerCtx = layerCtx
+      ? { ...layerCtx, current: pageDef.layerState || null }
+      : null;
+    const { page, warnings: pageWarnings } = buildPage(pageDef, layout, allPageNames, { includeWorkspace, layerCtx: pageLayerCtx });
     warnings.push(...pageWarnings);
     tree.addPage(page);
     if (i === 0) rootId = page.id;
@@ -232,6 +362,10 @@ export function buildTree(layout, { includeWorkspace = true, fallbackName = 'Key
     }
   });
   tree.rootId = rootId;
+
+  if (stateNames.size > 0) {
+    warnings.push(`Expanded key states into ${stateNames.size + 1} pages: default + ${[...stateNames].join(', ')}.`);
+  }
 
   return { tree, warnings };
 }

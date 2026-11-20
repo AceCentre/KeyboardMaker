@@ -43,6 +43,32 @@ Every `.json` file in this folder appears in the app's **Layout library** tab.
 - `type`: `"character"` (inserts `value` as text) or `"action"` (special key).
 - `label`: what appears on the key.
 - `value`: what the key inserts (characters) or identifies the action (actions).
+- `states`: optional per-key modifier variants (see below).
+
+### Key states (shift / opt layers)
+
+Any key may define `states` — per-modifier variants. State names are modifier
+names joined by `_` in canonical order (`shift`, `ctrl`, `alt`, `opt`), e.g.
+`"shift"`, `"opt"`, `"shift_opt"`. When any key defines states, the generator
+expands the layout into one Grid 3 page per state (same geometry), and any
+action key recognisable as a modifier (`⇧`/Shift, `⌃`/Ctrl, `⌥`/Alt/Option)
+becomes a `Jump.To` toggle between the layers — Grid 3's native model for
+modifier layers. Keys without a variant for a layer inherit their base value.
+
+```json
+{ "position": 3, "type": "character", "label": "e", "value": "e",
+  "states": {
+    "shift":     { "label": "E", "value": "E" },
+    "opt":       { "label": "é", "value": "é" },
+    "shift_opt": { "label": "É", "value": "É" }
+  } }
+```
+
+Toggling is XOR-style: `⇧` on the default layer jumps to `shift`, `⇧` on
+`shift` returns to default, `⌥` on `shift` jumps to `shift_opt`, and so
+on. Place the modifier keys in your rows like any other action key — the
+generator wires them per layer. Explicit `pages` and `states` cannot be
+combined. See `layouts/english-qwerty-states-demo.json` for a full example.
 
 ### Action keys
 

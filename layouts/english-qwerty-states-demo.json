@@ -1,0 +1,84 @@
+{
+  "layout": "English QWERTY States Demo",
+  "locale": "en-US",
+  "languages": ["English"],
+  "description": "Compact QWERTY demonstrating key states: shift and option layers generated from per-key states",
+  "workspace": true,
+  "rows": [
+    {
+      "row_index": 1,
+      "keys": [
+        { "position": 1, "type": "character", "label": "q", "value": "q", "states": { "shift": { "label": "Q", "value": "Q" } } },
+        { "position": 2, "type": "character", "label": "w", "value": "w", "states": { "shift": { "label": "W", "value": "W" } } },
+        { "position": 3, "type": "character", "label": "e", "value": "e", "states": {
+            "shift": { "label": "E", "value": "E" },
+            "opt": { "label": "é", "value": "é" },
+            "shift_opt": { "label": "É", "value": "É" }
+        } },
+        { "position": 4, "type": "character", "label": "r", "value": "r", "states": { "shift": { "label": "R", "value": "R" } } },
+        { "position": 5, "type": "character", "label": "t", "value": "t", "states": { "shift": { "label": "T", "value": "T" } } },
+        { "position": 6, "type": "character", "label": "y", "value": "y", "states": { "shift": { "label": "Y", "value": "Y" } } },
+        { "position": 7, "type": "character", "label": "u", "value": "u", "states": {
+            "shift": { "label": "U", "value": "U" },
+            "opt": { "label": "ú", "value": "ú" },
+            "shift_opt": { "label": "Ú", "value": "Ú" }
+        } },
+        { "position": 8, "type": "character", "label": "i", "value": "i", "states": {
+            "shift": { "label": "I", "value": "I" },
+            "opt": { "label": "í", "value": "í" },
+            "shift_opt": { "label": "Í", "value": "Í" }
+        } },
+        { "position": 9, "type": "character", "label": "o", "value": "o", "states": {
+            "shift": { "label": "O", "value": "O" },
+            "opt": { "label": "ó", "value": "ó" },
+            "shift_opt": { "label": "Ó", "value": "Ó" }
+        } },
+        { "position": 10, "type": "character", "label": "p", "value": "p", "states": { "shift": { "label": "P", "value": "P" } } }
+      ]
+    },
+    {
+      "row_index": 2,
+      "keys": [
+        { "position": 1, "type": "character", "label": "a", "value": "a", "states": {
+            "shift": { "label": "A", "value": "A" },
+            "opt": { "label": "á", "value": "á" },
+            "shift_opt": { "label": "Á", "value": "Á" }
+        } },
+        { "position": 2, "type": "character", "label": "s", "value": "s", "states": { "shift": { "label": "S", "value": "S" } } },
+        { "position": 3, "type": "character", "label": "d", "value": "d", "states": { "shift": { "label": "D", "value": "D" } } },
+        { "position": 4, "type": "character", "label": "f", "value": "f", "states": { "shift": { "label": "F", "value": "F" } } },
+        { "position": 5, "type": "character", "label": "g", "value": "g", "states": { "shift": { "label": "G", "value": "G" } } },
+        { "position": 6, "type": "character", "label": "h", "value": "h", "states": { "shift": { "label": "H", "value": "H" } } },
+        { "position": 7, "type": "character", "label": "j", "value": "j", "states": { "shift": { "label": "J", "value": "J" } } },
+        { "position": 8, "type": "character", "label": "k", "value": "k", "states": { "shift": { "label": "K", "value": "K" } } },
+        { "position": 9, "type": "character", "label": "l", "value": "l", "states": { "shift": { "label": "L", "value": "L" } } },
+        { "position": 10, "type": "action", "label": "Delete", "value": "⌫" }
+      ]
+    },
+    {
+      "row_index": 3,
+      "keys": [
+        { "position": 1, "type": "action", "label": "Shift", "value": "⇧" },
+        { "position": 2, "type": "character", "label": "z", "value": "z", "states": { "shift": { "label": "Z", "value": "Z" } } },
+        { "position": 3, "type": "character", "label": "x", "value": "x", "states": { "shift": { "label": "X", "value": "X" } } },
+        { "position": 4, "type": "character", "label": "c", "value": "c", "states": { "shift": { "label": "C", "value": "C" } } },
+        { "position": 5, "type": "character", "label": "v", "value": "v", "states": { "shift": { "label": "V", "value": "V" } } },
+        { "position": 6, "type": "character", "label": "b", "value": "b", "states": { "shift": { "label": "B", "value": "B" } } },
+        { "position": 7, "type": "character", "label": "n", "value": "n", "states": { "shift": { "label": "N", "value": "N" } } },
+        { "position": 8, "type": "character", "label": "m", "value": "m", "states": { "shift": { "label": "M", "value": "M" } } },
+        { "position": 9, "type": "action", "label": "Option", "value": "⌥" },
+        { "position": 10, "type": "action", "label": "Return", "value": "↵" }
+      ]
+    },
+    {
+      "row_index": 4,
+      "keys": [
+        { "position": 1, "type": "character", "label": ".", "value": "." },
+        { "position": 2, "type": "character", "label": ",", "value": "," },
+        { "position": 3, "type": "character", "label": "?", "value": "?" },
+        { "position": 4, "type": "character", "label": "!", "value": "!" },
+        { "position": 5, "type": "action", "label": "Spacebar", "value": " " }
+      ]
+    }
+  ]
+}
