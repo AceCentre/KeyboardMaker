@@ -9,13 +9,22 @@
   --ok: #1e7e34;
   --warn: #8a6d3b;
   --err: #d93025;
+  /* Multi-script stack: Noto families are unicode-range webfonts loaded in
+     index.html; the browser walks the list per glyph, so Cyrillic, Gujarati,
+     Hebrew, Arabic etc. render consistently instead of falling back to
+     whatever system fonts happen to be installed. */
+  --font-stack:
+    "Noto Sans", "Noto Sans Gujarati", "Noto Sans Devanagari", "Noto Sans Arabic",
+    "Noto Sans Hebrew", "Noto Sans Thai", "Noto Sans Armenian", "Noto Sans Georgian",
+    "Noto Sans Tamil", "Noto Sans Telugu", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: var(--font-stack);
   color: var(--ink);
   background: var(--bg);
   line-height: 1.45;
@@ -76,6 +85,15 @@ button:disabled { opacity: 0.5; cursor: wait; }
 .badge {
   position: absolute; top: 8px; right: 10px; background: #ffffffdd; border: 1px solid var(--line);
   border-radius: 10px; padding: 2px 9px; font-size: 0.75rem; color: var(--muted); z-index: 5;
+}
+
+/* Board previews: override the viewer's Latin-only font stack (higher
+   specificity than its injected .aac-board-viewer rule) so key labels in
+   Cyrillic, Gujarati, Arabic etc. render with the loaded Noto fonts. */
+.preview-pane .aac-board-viewer,
+.modal-body .aac-board-viewer,
+.inline-preview .aac-board-viewer {
+  font-family: var(--font-stack);
 }
 
 /* Details */
